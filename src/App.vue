@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="container">
     <h1>{{ title }} ({{ tasks.length }})</h1>
     <p>Completed: ({{ completedTasks.length }})</p>
     <p>Incompleted: ({{ incompletedTasks.length }})</p>
@@ -23,14 +23,30 @@
     <button @click="addTask()" :disabled="!newTask" :title='!newTask ? "Fill the box to add a new todo" : ""'>
       Add Task
     </button>
+
+    <br>
+    <br>
+    <alert message="This is my message"></alert>
+    <alert :message="title" type="danger" :closable="true"></alert>
+
+    <div v-for="user in users" class="row">
+      <card :data="user"></card>
+    </div>
+
   </div>
 </template>
 
 <script>
 import moment from "moment";
+import alert from "./components/alert.vue"
+import card from "./components/card.vue"
 
 export default {
   name: 'app',
+  components: {
+    alert,
+    card
+  },
   data () {
     return {
       title: 'Your Taks',
@@ -40,8 +56,12 @@ export default {
         { description: "Pay the bills", completed: true, created_at: moment().subtract("minutes", 50) },
         { description: "Buy some food", completed: false, created_at: moment().subtract("hours", 1)},
         { description: "Be awesome today", completed: true, created_at: moment().subtract("days", 2)}
-      ]
+      ],
+      users: []
     }
+  },
+  created() {
+      this.getUsers();
   },
   filters: {
     formatDate(date) {
@@ -69,6 +89,14 @@ export default {
       if (confirm("Are you sure?")) {
         this.tasks.splice(index, 1);
       }
+    },
+    getUsers() {
+      axios({
+        url: "https://randomuser.me/api/?results=5&nat=es",
+        method: "GET"
+      }).then(users => {
+          this.users = users.data.results;
+      })
     }
   }
 }
